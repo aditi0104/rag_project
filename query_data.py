@@ -1,9 +1,12 @@
+import os
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 import argparse
 from xml.parsers.expat import model
 
 from click import prompt
 # from dataclasses import dataclass
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
@@ -18,7 +21,7 @@ Answer the question based on the above context: {query}"""
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("query_text", type='str', help='This is the query text')
+    parser.add_argument("query_text", type=str, help='This is the query text')
     args = parser.parse_args()
     query_text = args.query_text
     print(query_text)
@@ -46,7 +49,7 @@ def main():
     prompt = prompt_template.format(context=context_text, query=query_text)
 
     model = ChatOpenAI()
-    response = model.predict(prompt)
+    response = model.invoke(prompt).content
 
     sources = [doc.metadata.get('source', None) for doc, _score in results]
     formatted_response = f'Response: {response}\n Sources: {sources}'
